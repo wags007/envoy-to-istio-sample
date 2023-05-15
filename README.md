@@ -16,6 +16,10 @@ This has only been tested on an intel MacOS computer.  You will need:
 * awk
 * grep
 
+# Setup
+1. Clone this repo
+2. Run `./build_environment.sh`
+3. run `docker-compose up -d -f ./docker-compose.yml`
 
 ## build_environment.sh 
 This is a bash script that automates the deployment of a Kubernetes cluster with Istio service mesh and a demo application. The script is intended to be used for testing and demonstration purposes only. It is not intended for production use.
