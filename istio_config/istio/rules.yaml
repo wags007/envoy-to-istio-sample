@@ -1,0 +1,27 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: simple-app-vs
+spec:
+  hosts:
+  - frontend.simple-app.svc.cluster.local
+  http:
+  - name: "simpleapp-v1-routes"
+    match:
+    - uri:
+        prefix: "/frontend"
+    route:
+    - destination:
+        host: frontend.simple-app.svc.cluster.local
+        subset: frontend
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: simple-app-rule
+spec:
+  host: frontend.simple-app.svc.cluster.local
+  subsets:
+  - name: v1
+    labels:
+      version: v1
