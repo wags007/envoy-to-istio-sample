@@ -2,7 +2,7 @@
 This repo contains an demo environment for setting up a Kubernetes cluster with Istio service mesh that is connected to via an envoy proxy in a container with access to a demo application. The demo environment is intended to be used for testing and demonstration purposes only. It is not intended for production use.  The Demo is setup such that the Envoy container represents a VM connecting to an Istio Mesh on K8s.
 
 # Prerequisites
-This has only been tested on an intel MacOS computer.  You will need:
+This has only been tested on Linux and MacOS computers.  You will need:
 * Docker
 * Docker-compose
 * k3d

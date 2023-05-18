@@ -27,13 +27,36 @@ check_command openssl
 
 #------------------------------------------------------------------------
 # remove old certs
+echo "Removing old certs"
 rm -rf ${DIR}/${certs_dir}
 rm -rf ${DIR}/envoy_config/certs/vm/*
+rm -rf ${DIR}/envoy_config/certs
+echo "Old certs removed"
 
 #------------------------------------------------------------------------
 # delete old cluster
-k3d cluster delete --config ${conf_dir}/k3d-cluster.yaml || true
-
+echo "Deleting old cluster"
+if [ $(k3d cluster delete --config ${conf_dir}/k3d-cluster.yaml 2>&1 > /dev/null || true) ]; then
+  echo "Cluster deleted"
+else
+  echo "Cluster does not exist"
+fi
+echo "Old cluster deleted"
 #------------------------------------------------------------------------
 # stop envoy container/vm
-docker-compose rm --stop --force
+echo "Stopping of envoy container simulating as a vm"
+if [ $(docker-compose rm --stop --force || true ) ]
+then
+  echo "Envoy container stopped and removed"
+else
+  echo "Envoy container does not exist or another error occured"
+fi
+
+#------------------------------------------------------------------------
+# remove old VM Network in docker
+echo "Removing old VM Network in docker"
+if [ $(docker network rm ${network} || true) ]; then
+  echo "VM Network removed"
+else
+  echo "VM Network does not exist or another error occured"
+fi
