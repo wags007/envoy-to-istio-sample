@@ -22,6 +22,6 @@ metadata:
 spec:
   host: frontend.simple-app.svc.cluster.local
   subsets:
-  - name: v1
+  - name: frontend
     labels:
-      version: v1
+      app: frontend

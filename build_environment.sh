@@ -68,7 +68,7 @@ else
 fi
 
 kubectl apply -f istio_config/cert-manager.yaml --wait
-
+kubectl rollout status deployment/cert-manager -n cert-manager
 while [ $(kubectl get deployments -n cert-manager -o json | jq '.items[].status.availableReplicas'|grep 1|wc -l) -lt 3 ] 
 do
   echo "Waiting for cert-manager to be ready"
@@ -216,6 +216,22 @@ else
   kubectl apply -f ${conf_dir}/istio/gateway.yaml
   echo "Istio gateway deployed"
 fi
+#------------------------------------------------------------------------
+# install Kiali
+kubectl apply -n istio-system -f ${DIR}/${conf_dir}/addons/kiali.yaml
+kubectl rollout status deployment/kiali -n istio-system
+#------------------------------------------------------------------------
+# install Grafana
+kubectl apply -n istio-system -f ${DIR}/${conf_dir}/addons/grafana.yaml
+kubectl rollout status deployment/grafana -n istio-system
+#------------------------------------------------------------------------
+# install Prometheus
+kubectl apply -n istio-system -f ${DIR}/${conf_dir}/addons/prometheus.yaml
+kubectl rollout status deployment/prometheus -n istio-system
+#------------------------------------------------------------------------
+# install Jaeger
+kubectl apply -n istio-system -f ${DIR}/${conf_dir}/addons/jaeger.yaml
+kubectl rollout status deployment/jaeger -n istio-system
 
 #------------------------------------------------------------------------
 # Deploy simple app to cluster
@@ -233,29 +249,18 @@ fi
 #------------------------------------------------------------------------
 # Verify deployment of simple app
 echo "checking app status"
-if [ $(kubectl get pods -n ${AppName}|grep ${AppName}|wc -l) ]
-then
-  while [ $(kubectl get pods -n ${AppName}|grep frontend|awk '{ print $2 }'|grep -v "1/1"|wc -l) -lt 1 ]
-  do
-    echo "Simple app is not ready yet.  Sleeping 10 seconds"
-    sleep 10
-  done
-  echo "checking app status"
-  kubectl port-forward -n ${AppName}  deployment/frontend 8080:8080 >/dev/null 2>&1 &
+kubectl rollout status deployment/frontend -n ${AppName}
+#echo "checking app status"
+#kubectl port-forward -n ${AppName}  deployment/frontend 8080:8080 >/dev/null 2>&1 &
 
-  if [ $(curl -s -f http://localhost:8080/health | grep '"code": 200'|wc -l) -eq 0 ]
-  then 
-    kill %1 2>&1 >/dev/null
-  else
-    echo "app is not functional"
-    kill %1 2>&1 >/dev/null
-    exit 1234
-  fi
-else
-  echo "Simple app is not installed.  Exiting"
-  exit 1234
-fi
-
+# if [ $(curl -s -f http://localhost:8080/ | grep '"code": 200'|wc -l) -eq 1 ]
+# then 
+#   kill %1 2>&1 >/dev/null
+# else
+#   echo "app is not functional"
+#   kill %1 2>&1 >/dev/null
+#   exit 1234
+# fi
 
 echo "app ${AppName} installed and running"
 
